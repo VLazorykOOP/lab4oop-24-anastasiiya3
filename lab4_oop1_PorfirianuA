@@ -1,0 +1,117 @@
+      Завдання 1
+#include <iostream>
+
+class VectorUInt {
+private:
+    unsigned int* data;
+    size_t size;
+    int codeError;
+
+public:
+    // Конструктор без параметрів
+    VectorUInt() : size(1), codeError(0) {
+        data = new unsigned int[size];
+        data[0] = 0;
+    }
+
+    // Конструктор з одним параметром - розмір вектора
+    VectorUInt(size_t s) : size(s), codeError(0) {
+        data = new unsigned int[size];
+        for (size_t i = 0; i < size; i++) {
+            data[i] = 0;
+        }
+    }
+
+    // Конструктор з двома параметрами - розмір та значення ініціалізації
+    VectorUInt(size_t s, unsigned int initValue) : size(s), codeError(0) {
+        data = new unsigned int[size];
+        for (size_t i = 0; i < size; i++) {
+            data[i] = initValue;
+        }
+    }
+
+    // Конструктор копіювання
+    VectorUInt(const VectorUInt& other) : size(other.size), codeError(other.codeError) {
+        data = new unsigned int[size];
+        for (size_t i = 0; i < size; i++) {
+            data[i] = other.data[i];
+        }
+    }
+
+    // Деструктор
+    ~VectorUInt() {
+        delete[] data;
+    }
+
+    // Перевантаження унарних операторів ++ та --
+
+    // Префіксний ++
+    VectorUInt& operator++() {
+        for (size_t i = 0; i < size; i++) {
+            ++data[i];
+        }
+        return *this;
+    }
+
+    // Постфіксний ++
+    VectorUInt operator++(int) {
+        VectorUInt temp(*this);
+        for (size_t i = 0; i < size; i++) {
+            data[i]++;
+        }
+        return temp;
+    }
+
+    // Префіксний --
+    VectorUInt& operator--() {
+        for (size_t i = 0; i < size; i++) {
+            --data[i];
+        }
+        return *this;
+    }
+
+    // Постфіксний --
+    VectorUInt operator--(int) {
+        VectorUInt temp(*this);
+        for (size_t i = 0; i < size; i++) {
+            data[i]--;
+        }
+        return temp;
+    }
+
+    // Додаткові методи для зручності перевірки
+    void print() const {
+        std::cout << "[";
+        for (size_t i = 0; i < size; i++) {
+            std::cout << data[i];
+            if (i != size - 1) {
+                std::cout << ", ";
+            }
+        }
+        std::cout << "]" << std::endl;
+    }
+
+    size_t getSize() const { return size; }
+    int getErrorCode() const { return codeError; }
+};
+
+// Приклад використання
+int main() {
+    VectorUInt v1;          // конструктор без параметрів
+    VectorUInt v2(5);       // конструктор з розміром 5
+    VectorUInt v3(3, 10);   // конструктор з розміром 3 та значенням 10
+    VectorUInt v4(v3);      // конструктор копіювання
+
+    std::cout << "v1: "; v1.print();
+    std::cout << "v2: "; v2.print();
+    std::cout << "v3: "; v3.print();
+    std::cout << "v4: "; v4.print();
+
+    ++v3;
+    std::cout << "++v3: "; v3.print();
+
+    v4--;
+    std::cout << "v4--: "; v4.print();
+
+    return 0;
+}
