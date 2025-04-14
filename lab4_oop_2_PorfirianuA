@@ -1,0 +1,106 @@
+                                                                              Завдання 2
+#include <iostream>
+#include <string>
+#include <map>
+#include <stdexcept>
+
+using namespace std;
+
+class BankAccountAssociation {
+private:
+    map<string, string> accountToName;  // рахунок → ПІБ
+    map<string, string> nameToAccount;  // ПІБ → рахунок
+    mutable int codeError;              // код помилки
+
+public:
+    // Конструктор
+    BankAccountAssociation() : codeError(0) {}
+
+    // Додати асоціацію
+    void addAssociation(const string& account, const string& fullName) {
+        accountToName[account] = fullName;
+        nameToAccount[fullName] = account;
+    }
+
+    // Оператор індексації по рахунку
+    string& operator[](const string& account) {
+        auto it = accountToName.find(account);
+        if (it != accountToName.end()) {
+            codeError = 0;
+            return it->second;
+        }
+        codeError = 1;
+        static string empty;
+        return empty;
+    }
+
+    // Оператор виклику функції по ПІБ
+    string operator()(const string& fullName) const {
+        auto it = nameToAccount.find(fullName);
+        if (it != nameToAccount.end()) {
+            codeError = 0;
+            return it->second;
+        }
+        codeError = 1;
+        return "";
+    }
+
+    // Перевантаження оператора виведення
+    friend ostream& operator<<(ostream& os, const BankAccountAssociation& assoc) {
+        os << "Bank Account Associations:\n";
+        for (const auto& pair : assoc.accountToName) {
+            os << "Account: " << pair.first << " → Client: " << pair.second << "\n";
+        }
+        return os;
+    }
+
+    // Перевантаження оператора введення
+    friend istream& operator>>(istream& is, BankAccountAssociation& assoc) {
+        string account, fullName;
+        cout << "Enter account number: ";
+        is >> account;
+        cout << "Enter client full name: ";
+        is.ignore(); // Щоб пропустити попередній \n
+        getline(is, fullName);
+        assoc.addAssociation(account, fullName);
+        return is;
+    }
+
+    // Отримання коду помилки
+    int getErrorCode() const { return codeError; }
+};
+
+int main() {
+    BankAccountAssociation accounts;
+
+    // Додаємо асоціації
+    accounts.addAssociation("UA123456789", "Petrenko Ivan Oleksandrovych");
+    accounts.addAssociation("UA987654321", "Sydorenko Anna Mykhailivna");
+
+    // Виводимо всі асоціації
+    cout << accounts;
+
+    // Пошук по рахунку
+    cout << "\nClient for account UA123456789: " << accounts["UA123456789"] << endl;
+    
+    // Пошук по ПІБ
+    cout << "Account for 'Sydorenko Anna Mykhailivna': " 
+         << accounts("Sydorenko Anna Mykhailivna") << endl;
+
+    // Тестування помилок
+    cout << "\nTrying to find non-existing account:\n";
+    string name = accounts["UA000000000"];
+    if (accounts.getErrorCode() != 0) {
+        cout << "Error: Account not found!\n";
+    }
+
+    // Додавання нової асоціації через cin
+    cout << "\nAdd new association:\n";
+    cin >> accounts;
+
+    // Виводимо оновлені асоціації
+    cout << "\nUpdated associations:\n";
+    cout << accounts;
+
+    return 0;
+}
